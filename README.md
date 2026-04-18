@@ -1,221 +1,161 @@
-NEWS‑MLOPS: Retrieval‑Augmented News Query System
-Overview
-NEWS‑MLOPS is an end‑to‑end MLOps pipeline implementing a Retrieval‑Augmented Generation (RAG) system for news intelligence.
-The system programmatically generates news data, preprocesses it, embeds it using Sentence Transformers, stores embeddings in ChromaDB, retrieves relevant documents, and produces contextual answers through a FastAPI backend and an optional Gradio UI.
+# NEWS-MLOPS: Retrieval-Augmented News Query System
 
-The project demonstrates a production‑oriented workflow including ingestion, feature engineering, vector storage, retrieval, deployment, monitoring, reproducibility, and automation.
+## Overview
+NEWS-MLOPS is an end-to-end MLOps pipeline that implements a Retrieval-Augmented Generation (RAG) system for financial news intelligence.
 
-Key Features
-Programmatic news data generation
+The system generates news data, preprocesses it, stores it in a database, creates embeddings, and retrieves relevant information to generate contextual answers using a FastAPI backend and an optional Gradio interface.
 
-Data ingestion and preprocessing
+The project demonstrates a production-oriented pipeline including data ingestion, feature engineering, vector storage, retrieval, deployment, monitoring, and automation.
 
-Embedding‑based feature engineering
+## Key Features
+- Programmatic data generation
+- Data ingestion and preprocessing
+- Embedding-based feature engineering (Sentence Transformers)
+- Vector database using ChromaDB
+- Retrieval-Augmented Generation (RAG)
+- FastAPI backend (`/ask` endpoint)
+- Gradio UI for interaction
+- Logging and artifact tracking
+- GitHub Actions automation
+- Docker-ready setup
 
-Vector database using ChromaDB
 
-Retrieval‑Augmented Generation (RAG) pipeline
-
-FastAPI backend with /ask endpoint
-
-Optional Gradio UI for user interaction
-
-Logging and artifact tracking
-
-Dockerized deployment
-
-Automated pipeline execution via GitHub Actions
-
-Repository Structure
-
+## Repository Structure
 NEWS-MLOPS/
 │
-├── app_fastapi.py          # FastAPI backend (RAG API)
-├── rag.py                  # Gradio UI (frontend)
-├── create_data.py          # Synthetic news data generator
-├── ingest_data.py          # Preprocessing and ingestion
-├── vector_db.py            # Embedding generation + ChromaDB creation
-├── vectordb_query.py       # Retriever logic
-├── search.py               # Utility search functions
+├── app_fastapi.py # FastAPI backend
+├── rag.py # Gradio UI
+├── create_data.py # Data generation
+├── ingest_data.py # Data ingestion (JSON → SQLite)
+├── vector_db.py # Embedding + ChromaDB creation
+├── vectordb_query.py # Query + LLM response
+├── search.py # Vector search utility
 │
-├── requirements.txt        # Dependencies
-├── Dockerfile              # Backend Docker image
+├── requirements.txt
+├── Dockerfile
 │
-├── .devcontainer/          # Devcontainer setup for Codespaces
-│   ├── devcontainer.json
-│   └── Dockerfile
+├── .devcontainer/
 │
 ├── artifacts/
-│   └── logs.txt            # System logs
+│ └── logs.txt
 │
-└── chroma_db/              # Persisted vector database
+└── chroma_db/
 
-Devcontainer Environment (Codespaces Support)
-This project includes a .devcontainer setup to ensure a fully reproducible development environment.
+## Pipeline Architecture
 
-What the devcontainer provides
-Automatic installation of Python and dependencies
-
-Preconfigured environment for FastAPI, ChromaDB, and Gradio
-
-Consistent environment across machines
-
-One‑click startup in GitHub Codespaces
-
-Eliminates “works on my machine” issues
-
-How to use it
-Open the repository in GitHub
-
-Click Code → Codespaces → Create Codespace
-
-The devcontainer automatically builds the environment
-
-You can immediately run:
-Code
-uvicorn app_fastapi:app --reload
-python rag.py
-
-Pipeline Architecture
 Data Generation (create_data.py)
-        ↓
-Data Ingestion & Preprocessing (ingest_data.py)
-        ↓
+↓
+Data Ingestion (ingest_data.py)
+↓
 Embedding Generation (vector_db.py)
-        ↓
-ChromaDB Vector Store (chroma_db/)
-        ↓
-User Query (API or UI)
-        ↓
-Retriever (vectordb_query.py)
-        ↓
-Context Builder + RAG Logic (app_fastapi.py)
-        ↓
-LLM Response
-        ↓
-FastAPI Endpoint (/ask)
-        ↓
- Gradio UI (rag.py)
+↓
+ChromaDB (Vector Store)
+↓
+User Query (API / UI)
+↓
+Retriever
+↓
+RAG + LLM (Groq API)
+↓
+Response via FastAPI
+↓
+Optional Gradio UI
 
- How to Run Locally
-1. Install dependencies
-bash
+## How to Run (Local)
+
+### 1. Install dependencies
 pip install -r requirements.txt
-2. Generate synthetic news data
-bash
+2. Generate data
 python create_data.py
-3. Build the vector database
-bash
+3. Ingest data
+python ingest_data.py
+4. Build vector database
 python vector_db.py
-4. Start the FastAPI backend
-bash
+5. Start backend
 uvicorn app_fastapi:app --host 0.0.0.0 --port 8000
-API documentation is available at:
 
-Code
+API Docs:
+
 http://localhost:8000/docs
-Gradio User Interface (Frontend)
-The project includes a simple Gradio UI for interacting with the RAG system without using API tools.
+Gradio UI (Frontend)
 
-Run the UI
-Ensure the backend is running, then:
+Run:
 
-bash
 python rag.py
-The UI will be available at:
 
-Code
+Access:
+
 http://localhost:7860
-UI → Backend Interaction
-Code
-Gradio UI (rag.py)
-        ↓ POST /ask
-FastAPI Backend (app_fastapi.py)
-        ↓
-Retriever + RAG Pipeline
-        ↓
-Generated Answer
-Running with Docker
-Build the image
-bash
-docker build -t news-mlops .
-Run the container
-bash
-docker run -p 8000:8000 news-mlops
-API docs:
-
-Code
-http://localhost:8000/docs
 API Usage
 Endpoint
-Code
 POST /ask
 Example Request
-json
 {
   "query": "What is happening in global markets?"
 }
-Response
-Returns a generated answer based on retrieved news context.
+Automation (GitHub Actions)
 
-Pipeline Automation (GitHub Actions)
-The pipeline is automated using GitHub Actions to ensure continuous updates:
+The pipeline is automated using GitHub Actions:
 
-Scheduled runs
+Runs every 2 hours
+Can be triggered manually
+Executes full pipeline:
+Data generation
+Data ingestion
+Vector database update
 
-Automatic data regeneration
+Workflow:
 
-Automatic embedding + vector DB refresh
-
-Optional manual triggers
-
-This ensures reproducibility and reduces manual workload.
+.github/workflows/schedule.yml
 
 Artifacts
-Artifacts are stored in the artifacts/ directory:
 
-logs.txt — ingestion, retrieval, and API logs
+Stored in:
 
-chroma_db/ — persisted vector database
+artifacts/logs.txt
+chroma_db/
 
-These support debugging, monitoring, and reproducibility.
+Includes:
 
+Logs for ingestion, API, retrieval
+Persisted vector database
 Monitoring
+
 The system logs:
 
-Data ingestion events
-
-Vector DB creation
-
+Data ingestion
+Embedding creation
 API requests
-
 Retrieval results
+Deployment
+Docker (Optional)
 
-UI interactions
+Build:
 
-Logs are stored in:
+docker build -t news-mlops .
 
-Code
-artifacts/logs.txt
+Run:
+
+docker run -p 8000:8000 news-mlops
+
 Reproducibility
-Reproducibility is ensured through:
 
-Deterministic data generation
+The project ensures reproducibility through:
 
 Fixed dependencies (requirements.txt)
-
-Docker containerization
-
-Devcontainer environment for consistent development
-
-Automated GitHub Actions workflows
-
+Devcontainer environment
+Automated workflows (GitHub Actions)
 Persisted vector database
+Structured pipeline design
+Important Note
+
+The API and UI run as services and must be started manually.
+
+GitHub Actions automates the pipeline but does not host a live API.
 
 Author
+
 Riya Pokharel
 Sristi Kulung Rai
-MSc BDS – Data Engineering and Machine Learning Operations in Business
 
-License
-This project is submitted as part of the MLOps exam assignment.
+MSc BDS – Data Engineering and Machine Learning Operations in Business
